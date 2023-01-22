@@ -1,11 +1,19 @@
 import { PrismaClient } from "@prisma/client";
-import { getMaxListeners } from "process";
 const prisma = new PrismaClient();
 
 async function main() {
-  const user = await prisma.user.findFirst({
-    where: {
+  await prisma.user.deleteMany({});
+
+  const user = await prisma.user.create({
+    data: {
       name: "Rahul",
+      age: 36,
+      email: "rahul@test.com",
+      isAdmin: true,
+      userPreference: { create: { emailUpdate: true } },
+    },
+    include: {
+      userPreference: true,
     },
   });
 
