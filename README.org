@@ -1258,4 +1258,80 @@ async function main() {
 }
 #+END_SRC
 ** Updating
-...
+We have update and updateMany.
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.update({
+    where: {
+      email: "rahul@test.com",
+    },
+    data: {
+      email: "rahul@test1.com",
+    },
+  });
+  console.log(user);
+}
+#+END_SRC
+
+We can also use include and select with it like any other.
+
+UpdateMany will update all matching.
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.updateMany({
+    where: {
+      name: "Boris",
+    },
+    data: {
+      name: "Borinho",
+    },
+  });
+  console.log(user);
+}
+#+END_SRC
+
+Important, updateMany (and createMany), there's NO SELECT NOR INCLUDE!
+
+Let's try update our age:
+
+#+BEGIN_SRC typescript
+  async function main() {
+    const user = await prisma.user.update({
+      where: {
+        name: "Rahul",
+      },
+      data: {
+        age: {
+          increment: 1,
+        },
+      },
+    });
+    console.log(user);
+  }
+#+END_SRC
+
+We get an error as name is not a unique attribute.
+
+Let's change to e-mail.
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.update({
+    where: {
+      email: "rahul@test1.com",
+    },
+    data: {
+      age: {
+        increment: 1,
+      },
+    },
+  });
+  console.log(user);
+}
+#+END_SRC
+
+We can also use decrement, multiply and divide.
+
+
