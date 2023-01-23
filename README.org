@@ -5,8 +5,10 @@
 
 * Intro
 
-[[https://github.com/prisma/prisma][Important link: Prisma Github Repo]]
+Links:
 
+- [[https://github.com/prisma/prisma][Important link: Prisma Github Repo]]
+- [[https://playground.prisma.io/guides][Guides]]
 
 Prisma is a next-generation ORM that consists of these tools:
 
@@ -1420,8 +1422,9 @@ async function main() {
 }
 #+END_SRC
 
-
-
 * Future topics
 ** Views
 ** Importing database to prisma
+** GraphQL client
+** REPL
+
