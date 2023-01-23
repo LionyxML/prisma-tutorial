@@ -1,0 +1,2023 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2023-01-23 Seg 13:50 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Prisma ORM Training</title>
+<meta name="author" content="Rahul M. Juliato" />
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://fniessen.github.io/org-html-themes/src/readtheorg_theme/js/readtheorg.js"></script>
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">Prisma ORM Training</h1>
+<div id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#org11b83d7">1. Intro</a></li>
+<li><a href="#org1d7b4e0">2. Setup</a></li>
+<li><a href="#org34a27df">3. The basic schema.prisma file and flow</a></li>
+<li><a href="#org5ed5ff9">4. Modeling on schema.prisma (99% of what you'll need)</a>
+<ul>
+<li><a href="#org32578d3">4.1. Basic</a></li>
+<li><a href="#orgc5b249a">4.2. One to Many</a></li>
+<li><a href="#org52dd23c">4.3. Multiple One to Many</a></li>
+<li><a href="#orge68913a">4.4. Many to Many</a></li>
+<li><a href="#org76f1f5a">4.5. One to One</a></li>
+<li><a href="#org76a96dc">4.6. A little bit refactoring</a></li>
+<li><a href="#org403d6bf">4.7. Block Level Attributes</a></li>
+<li><a href="#org6fee0f4">4.8. Enum</a></li>
+<li><a href="#org5159a1f">4.9. Migrating</a></li>
+</ul>
+</li>
+<li><a href="#org4f7db81">5. Exploring the client</a>
+<ul>
+<li><a href="#orga9e613a">5.1. Intro</a></li>
+<li><a href="#org73fd283">5.2. Creating</a></li>
+<li><a href="#orged36e55">5.3. Finding (reading data)</a></li>
+<li><a href="#orgfe9a768">5.4. Updating</a></li>
+<li><a href="#org07659dc">5.5. Add and Connect Existent Relationships</a></li>
+<li><a href="#org5861d27">5.6. Deleting</a></li>
+</ul>
+</li>
+<li><a href="#org702ccdd">6. Future topics</a>
+<ul>
+<li><a href="#orge30abf8">6.1. Views</a></li>
+<li><a href="#org9ef6e5e">6.2. Importing database to prisma</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org11b83d7" class="outline-2">
+<h2 id="org11b83d7"><span class="section-number-2">1.</span> Intro</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+<a href="https://github.com/prisma/prisma">Important link: Prisma Github Repo</a>
+</p>
+
+
+<p>
+Prisma is a next-generation ORM that consists of these tools:
+</p>
+
+<p>
+Prisma Client: Auto-generated and type-safe query builder for Node.js
+&amp; TypeScript
+</p>
+
+<p>
+Prisma Migrate: Declarative data modeling &amp; migration system
+</p>
+
+<p>
+Prisma Studio: GUI to view and edit data in your database
+</p>
+</div>
+</div>
+
+<div id="outline-container-org1d7b4e0" class="outline-2">
+<h2 id="org1d7b4e0"><span class="section-number-2">2.</span> Setup</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+Start a new project
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">npm init -y
+npm i --save-dev prisma typescript ts-node @types/node nodemon
+</pre>
+</div>
+
+<p>
+Typescript is not obligatory but helps a LOT!
+</p>
+
+<p>
+Now we create a `tsconfig.json` file (this is the one recommended):
+</p>
+
+<div class="org-src-container">
+<pre class="src src-json">{
+  "compilerOptions": {
+    "sourceMap": true,
+    "outDir": "dist",
+    "strict": true,
+    "lib": ["esnext"],
+    "esModuleInterop": true
+  }
+}
+</pre>
+</div>
+
+<p>
+Now we initialize prisma :)
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">npx prisma init
+</pre>
+</div>
+
+<p>
+or better
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">npx prisma init --datasource-provider postgresql (or any other)
+</pre>
+</div>
+
+<p>
+A prisma folder is created.
+</p>
+
+<p>
+Explore it.
+</p>
+
+<p>
+Explore about Generator and Data Source.
+</p>
+
+<p>
+Also explore talk about .env created and .gitignore.
+</p>
+
+<p>
+Explore how to make the `.prisma` file be syntax highlighted and LSP aware.
+</p>
+
+<p>
+VSCode: using an extension, Prisma.
+</p>
+
+<p>
+Show that altering the .prisma file and then saving we have auto
+format if it is set to VSCode default.
+</p>
+
+<p>
+On VSCode we can ctrl+, (command+,).
+</p>
+
+<p>
+Edit the settings on JSON and show/add:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-json">"[prisma]": {
+  "editor.defaultFormatter": "Prisma.prisma",
+  "editor.formatOnSave": true
+},
+</pre>
+</div>
+
+<p>
+Comment to show how it can be disabled by commenting this code, making
+a change and saving.
+</p>
+
+<p>
+And if you do not like it when saving, you can programatically do it with:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">npx prisma format
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org34a27df" class="outline-2">
+<h2 id="org34a27df"><span class="section-number-2">3.</span> The basic schema.prisma file and flow</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+This is a Prisma specific format.
+</p>
+
+<p>
+Let's dive into it a bit.
+</p>
+
+<p>
+Explain what a generator is.
+</p>
+
+<p>
+Explore about providers for your generator and the `generator client`.
+</p>
+
+<p>
+Explore `datasource db`.
+</p>
+
+
+<p>
+create a model:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-prisma">model User {
+   id   Int @id @default(autoincrement())
+   name String 
+}
+</pre>
+</div>
+
+<p>
+Now we can save.
+</p>
+
+<p>
+Prisma and db are completelly different stuff.
+</p>
+
+<p>
+Did we changed our db by saving this file?
+</p>
+
+<p>
+We need to generate a migration and push it into the database.
+</p>
+
+<p>
+So we can migrate from Nothing to our model.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">npx prisma migrate dev "message here"
+</pre>
+</div>
+
+
+<p>
+Pay attention on what is returned.
+</p>
+
+<p>
+It says it generated the prisma client. But in order to use it we need
+an extra package.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">npm install @prisma/client
+</pre>
+</div>
+
+<p>
+On every migration your client is re-generated, but if you need to
+do it manually you can always force the regeneration with:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">npx prisma generate client
+</pre>
+</div>
+
+<p>
+This will also return the magic lines:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">import { PrismaClient } from '@prisma/client'
+const prisma = new PrismaClient()
+</pre>
+</div>
+
+<p>
+If we create a `script.ts` file and add this lines, we can see that we
+may explore this object by typing `prisma` followed by the
+completition shortcut on your editor (for VSCode it is Ctrl+Space or
+Command+Space).
+</p>
+
+<p>
+Explore with prisma, prisma.user&#x2026;
+</p>
+
+<p>
+In order to make something useful from `script.ts` we'll add some
+boilerplate code to deal with the async calls.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+
+async function main() {
+   // We will explore prisma here...
+
+}
+
+main()
+.catch((e) =&gt; console.error(e.message))
+.finally(async () =&gt; {
+  await prisma.$disconnect();
+});
+</pre>
+</div>
+
+<p>
+Talk about this boilerplate and about disconnect.
+</p>
+
+
+<p>
+Add some simple like:
+</p>
+<div class="org-src-container">
+<pre class="src src-typescript">const user = await prisma.user.create({ data: { name: "Rahul" } });
+console.log(user);
+</pre>
+</div>
+
+<p>
+In order to execute it let's make some changes to our `package.json`.
+</p>
+
+<p>
+Add this script:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-JSON">"scripts": {
+  "devStart": "nodemon script.ts"
+},
+</pre>
+</div>
+
+<p>
+Talk about nodemon and &#x2013;watch
+</p>
+
+<p>
+Execute `npm run devStart`.
+</p>
+
+<p>
+Change name to other names and see it in action.
+</p>
+
+<p>
+Also change user to users and do:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">const users = await prisma.user.findMany({});
+console.log(users);
+</pre>
+</div>
+
+<p>
+This is the basic preview of what the `.prisma` file does.
+</p>
+
+<p>
+Check the file on every item.
+</p>
+
+<p>
+Generator =&gt; dabase =&gt; model =&gt; migrations =&gt; client
+</p>
+
+<p>
+This file allows defining the db, configs it, the schema and the client.
+This is a case of "Single Source of Truth".
+</p>
+
+<p>
+Prisma has only ONE database.
+</p>
+
+<p>
+Also do not forget to be mindiful about the .env file and generate
+diff data bases for dev, production, testing, etc.
+</p>
+
+<p>
+Generators we can have lots of types and be many.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org5ed5ff9" class="outline-2">
+<h2 id="org5ed5ff9"><span class="section-number-2">4.</span> Modeling on schema.prisma (99% of what you'll need)</h2>
+<div class="outline-text-2" id="text-4">
+</div>
+<div id="outline-container-org32578d3" class="outline-3">
+<h3 id="org32578d3"><span class="section-number-3">4.1.</span> Basic</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+Back to our `schema.prisma`.
+</p>
+
+<p>
+Models represent diferent tables on your base we're data will be
+stored.
+</p>
+
+<p>
+Each model line is a Field, the field can have four different parts.
+</p>
+
+<p>
+2 obligatory, 2 optional.
+</p>
+
+<p>
+Name, Type, Field Modifiers and Attributes.
+</p>
+
+<p>
+Explore the model by adding.
+</p>
+
+<p>
+Let's explore the field types.
+</p>
+
+<p>
+Int, String, Boolean, BigInt, Float, Decimal, DateTime, Json (some
+only), Bytes, Unsupported("")
+</p>
+
+<p>
+Explore that prisma can be connected to a database that already exists
+and convert its schema. And if there's no relation between a db
+feature and prisma, this will be marked as an Unsupported.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-prisma">model User {
+  id            String  @id @default(uuid())
+  age           Int
+  name          String
+  email         String
+  isAdmin       Boolean
+  preferences   Json
+}
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-prisma">model Post {
+    rating    Float
+    createdAt DateTime
+    updatedAt DateTime
+  //author    User
+}
+</pre>
+</div>
+
+
+<p>
+Then talk about adding `author User` to Post model.
+</p>
+
+<p>
+Explore about what will happen if you save and how a dev should be
+aware of "magic"
+</p>
+
+<p>
+Let's talk about relationships.
+</p>
+<ul class="org-ul">
+<li>One to many (A post has one author and an author has many posts)</li>
+<li>Many to many (One post can have many categories and one category may
+have many posts)</li>
+<li>One to one (If a user has a table of preferences, and each
+preference has one user that links it)</li>
+</ul>
+
+<p>
+We're gonna cover all.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgc5b249a" class="outline-3">
+<h3 id="orgc5b249a"><span class="section-number-3">4.2.</span> One to Many</h3>
+<div class="outline-text-3" id="text-4-2">
+<p>
+A user can have many posts.
+</p>
+
+<p>
+Save, see the magic, and alter to:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-prisma">model User {
+  id      Int     @id @default(autoincrement())
+  name    String
+  email   String
+  isAdmin Boolean
+  //  preferences Json
+  Post    Post[]
+}
+
+model Post {
+  rating    Float
+  createdAt DateTime
+  updatedAt DateTime
+  author    User     @relation(fields: [userId], references: [id])
+  userId    Int
+}
+</pre>
+</div>
+
+<p>
+Explore first about `Post[]` the type modifier. There's only two:
+</p>
+<ul class="org-ul">
+<li>[] Array (multiple of the thing)</li>
+<li>?  Optional</li>
+</ul>
+
+<p>
+Explore relations to primary key in SQL.
+</p>
+
+<p>
+Change userId to authorId.
+</p>
+
+<p>
+Another thing we may do is use uuid() instead of autoincrement(). And so
+change the type to string.
+</p>
+
+<p>
+Explore what is missing on Post. Add its own Id.
+</p>
+
+<p>
+The end of this part should be:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-prisma">model User {
+  id      String  @id @default(uuid())
+  name    String
+  email   String
+  isAdmin Boolean
+  //  preferences Json
+  Post    Post[]
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  rating    Float
+  createdAt DateTime
+  updatedAt DateTime
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org52dd23c" class="outline-3">
+<h3 id="org52dd23c"><span class="section-number-3">4.3.</span> Multiple One to Many</h3>
+<div class="outline-text-3" id="text-4-3">
+<p>
+Change User and Post models to:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-prisma">model User {
+  id            String  @id @default(uuid())
+  name          String
+  email         String
+  isAdmin       Boolean
+  writtenPosts  Post[]
+  favoritePosts Post[]
+}
+
+model Post {
+  id            String   @id @default(uuid())
+  rating        Float
+  createdAt     DateTime
+  updatedAt     DateTime
+  author        User     @relation(fields: [authorId], references: [id])
+  authorId      String
+  favoritedBy   User     @relation(fields: [favoritedById], references: [id])
+  favoritedById String
+} 
+
+
+</pre>
+</div>
+
+<p>
+Wich relation is pointint to which? This is ambiguous.
+</p>
+
+<p>
+We may give a name to the Post relation and THEN refer to it on User.
+</p>
+
+<p>
+Only then save it, show what happens if you save after changing post
+but not inserting the relation to User.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-prisma">model User {
+  id            String  @id @default(uuid())
+  name          String
+  email         String
+  isAdmin       Boolean
+  writtenPosts  Post[] @relation("WrittenPosts")
+  favoritePosts Post[] @relation("FavoritePosts")
+}
+
+model Post {
+  id            String   @id @default(uuid())
+  rating        Float
+  createdAt     DateTime
+  updatedAt     DateTime
+  author        User     @relation("WrittenPosts", fields: [authorId], references: [id])
+  authorId      String
+  favoritedBy   User?     @relation("FavoritePosts", fields: [favoritedById], references: [id])
+  favoritedById String?
+}
+</pre>
+</div>
+
+<p>
+For the last, explore changing favoritedBy and favoritedById to optional.
+</p>
+
+<p>
+This is ok for disanbiguating multiple one to many relationships. But
+what about&#x2026;
+</p>
+</div>
+</div>
+
+<div id="outline-container-orge68913a" class="outline-3">
+<h3 id="orge68913a"><span class="section-number-3">4.4.</span> Many to Many</h3>
+<div class="outline-text-3" id="text-4-4">
+<p>
+Create the Category model and add the many to many relation to both
+Category and Post.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-prisma">model Category {
+  id    String @id @default(uuid())
+  posts Post[]
+}
+
+model Post {
+  id            String     @id @default(uuid())
+  rating        Float
+  createdAt     DateTime
+  updatedAt     DateTime
+  author        User       @relation("WrittenPosts", fields: [authorId], references: [id])
+  authorId      String
+  favoritedBy   User       @relation("FavoritePosts", fields: [favoritedById], references: [id])
+  favoritedById String
+  categories    Category[]
+}
+</pre>
+</div>
+
+<p>
+We don't need to make any to do any fancy @relationship, it
+automatically knows the references.
+</p>
+
+<p>
+And it is automatically going to create a JOIN table that is going to
+hook up all this relationships for us.
+</p>
+
+<p>
+All the complicated JOIN stuff we need to do to many to many
+relationships is taken care by Prisma, you don't need to worry about
+that at all.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org76f1f5a" class="outline-3">
+<h3 id="org76f1f5a"><span class="section-number-3">4.5.</span> One to One</h3>
+<div class="outline-text-3" id="text-4-5">
+<p>
+Let's create a new model, UserPreference. Since we want one to one, we can declare
+the relationship on ether model. We'll do it inside UserPreferences.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-prisma">model UserPreference {
+  id           String  @id @default(uuid())
+  emailUpdates Boolean
+  user User
+  userId String
+}
+</pre>
+</div>
+
+<p>
+When we save it, a lot is done automatically, lets just change it a bit.
+</p>
+
+<p>
+On User change the array to "one" relationship deleting [] and passing ?.
+</p>
+
+<p>
+If not automatically, we need to define userId as @unique.
+</p>
+
+<p>
+We know must have:
+</p>
+<div class="org-src-container">
+<pre class="src src-prisma">model User {
+  id             String          @id @default(uuid())
+  name           String
+  email          String
+  isAdmin        Boolean
+  writtenPosts   Post[]          @relation("WrittenPosts")
+  favoritePosts  Post[]          @relation("FavoritePosts")
+  UserPreference UserPreference?
+}
+
+model UserPreference {
+  id           String  @id @default(uuid())
+  emailUpdates Boolean
+  user         User    @relation(fields: [userId], references: [id])
+  userId       String  @unique
+}  
+
+
+</pre>
+</div>
+
+<p>
+Let's talk about the attributes we've seen so far and add @updatedAt and also
+@default(now()).
+</p>
+
+<p>
+We now may have a Post model like this:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-prisma">model Post {
+  id            String     @id @default(uuid())
+  rating        Float
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  author        User       @relation("WrittenPosts", fields: [authorId], references: [id])
+  authorId      String
+  favoritedBy   User       @relation("FavoritePosts", fields: [favoritedById], references: [id])
+  favoritedById String
+  categories    Category[]
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org76a96dc" class="outline-3">
+<h3 id="org76a96dc"><span class="section-number-3">4.6.</span> A little bit refactoring</h3>
+<div class="outline-text-3" id="text-4-6">
+<p>
+Add title to Post. Rating to avgRating to float.
+</p>
+
+<p>
+On category give a Name, string, unique.
+</p>
+
+<p>
+User may have an age as Int.
+</p>
+
+<p>
+We must have this now:
+</p>
+<div class="org-src-container">
+<pre class="src src-prisma">model User {
+  id             String          @id @default(uuid())
+  age            Int
+  name           String
+  email          String
+  isAdmin        Boolean
+  writtenPosts   Post[]          @relation("WrittenPosts")
+  favoritePosts  Post[]          @relation("FavoritePosts")
+  UserPreference UserPreference?
+}
+
+model UserPreference {
+  id           String  @id @default(uuid())
+  emailUpdates Boolean
+  user         User    @relation(fields: [userId], references: [id])
+  userId       String  @unique
+}
+
+model Post {
+  id            String     @id @default(uuid())
+  title         String
+  avgRating     Float
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  author        User       @relation("WrittenPosts", fields: [authorId], references: [id])
+  authorId      String
+  favoritedBy   User       @relation("FavoritePosts", fields: [favoritedById], references: [id])
+  favoritedById String
+  categories    Category[]
+}
+
+model Category {
+  id    String @id @default(uuid())
+  name  String @unique
+  posts Post[]
+}
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org403d6bf" class="outline-3">
+<h3 id="org403d6bf"><span class="section-number-3">4.7.</span> Block Level Attributes</h3>
+<div class="outline-text-3" id="text-4-7">
+<p>
+Different of the Attributes (which are declared in rows).
+</p>
+
+<p>
+The Block Level Attributes will be declared on the end of the model
+using @@.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-prisma">model User {
+  id             String          @id @default(uuid())
+  age            Int
+  name           String
+  email          String
+  isAdmin        Boolean
+  writtenPosts   Post[]          @relation("WrittenPosts")
+  favoritePosts  Post[]          @relation("FavoritePosts")
+  UserPreference UserPreference?
+
+  @@unique([age, name])
+  @@index([email])
+  // @@index([email, name])
+}
+
+model UserPreference {
+  id           String  @id @default(uuid())
+  emailUpdates Boolean
+  user         User    @relation(fields: [userId], references: [id])
+  userId       String  @unique
+}
+
+model Post {
+  id            String     @id @default(uuid())
+  title         String
+  avgRating     Float
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  author        User       @relation("WrittenPosts", fields: [authorId], references: [id])
+  authorId      String
+  favoritedBy   User       @relation("FavoritePosts", fields: [favoritedById], references: [id])
+  favoritedById String
+  categories    Category[]
+
+  // @@id([title, author])
+}
+
+model Category {
+  id    String @id @default(uuid())
+  name  String @unique
+  posts Post[]
+}
+</pre>
+</div>
+
+
+<p>
+@@unique will ad the unique constraint
+</p>
+
+<p>
+@@index will help with thinks like sorting and performance
+</p>
+
+<p>
+@@id (it is an option if you don't want
+an conventional id but a composition of two attr)
+</p>
+</div>
+</div>
+
+<div id="outline-container-org6fee0f4" class="outline-3">
+<h3 id="org6fee0f4"><span class="section-number-3">4.8.</span> Enum</h3>
+<div class="outline-text-3" id="text-4-8">
+<p>
+We can add an enum like:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-prisma">enum Role {
+  BASIC
+  EDITOR
+  ADMIN
+}
+</pre>
+</div>
+
+<p>
+and set it to our user adding the line:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-prisma">role           Role            @default(BASIC)
+</pre>
+</div>
+
+<p>
+See why in our example we can't use enums (connector sqlite doesn't
+support it).
+</p>
+
+<p>
+Great advantage of being sure it will populate with the right list
+item.
+</p>
+</div>
+</div>
+<div id="outline-container-org5159a1f" class="outline-3">
+<h3 id="org5159a1f"><span class="section-number-3">4.9.</span> Migrating</h3>
+<div class="outline-text-3" id="text-4-9">
+<p>
+With the current schema.prisma (as in the end of "Block Level
+Attributes"), we'll try to migrate with:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">npx prisma migrate dev
+</pre>
+</div>
+
+<p>
+An error!
+</p>
+
+<p>
+Explore reading the error.
+</p>
+
+<p>
+Try to delete everything with:
+</p>
+<div class="org-src-container">
+<pre class="src src-typescript">await prisma.user.deleteMany();
+</pre>
+</div>
+
+<p>
+And then run the migration again.
+</p>
+
+<p>
+Explore and ask the questions.
+</p>
+
+<p>
+Explore the migration files and their dialects.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org4f7db81" class="outline-2">
+<h2 id="org4f7db81"><span class="section-number-2">5.</span> Exploring the client</h2>
+<div class="outline-text-2" id="text-5">
+</div>
+<div id="outline-container-orga9e613a" class="outline-3">
+<h3 id="orga9e613a"><span class="section-number-3">5.1.</span> Intro</h3>
+<div class="outline-text-3" id="text-5-1">
+<p>
+We will talk about creating, reading, updating and deleting.
+</p>
+
+<p>
+The prisma client must be a single instance. Otherwise the db might be
+overwelmed with too many connections.
+</p>
+
+<p>
+If auto-complete does not completes, we might need close/reopen file or
+regenerate the client with:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-bash">npx prisma generate
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org73fd283" class="outline-3">
+<h3 id="org73fd283"><span class="section-number-3">5.2.</span> Creating</h3>
+<div class="outline-text-3" id="text-5-2">
+<p>
+We will start with:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.create({
+    data: {
+      name: "Rahul",
+      email: "rahul@test.com",
+      age: 36,
+    },
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+Saving again, we run it, we get the error expected.
+</p>
+
+<p>
+Adding this to the beginning:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">await prisma.user.deleteMany();
+</pre>
+</div>
+
+<p>
+Using ctrl+space (auto-completition) we can also see that is possible
+to specify data for favoritedPosts and userPreferences.
+</p>
+
+<p>
+This is interisting because those are models that are not inside the
+User, but they're referenced.
+</p>
+
+<p>
+With prisma we can do all the nested create function in one go:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  await prisma.user.deleteMany();
+
+  const user = await prisma.user.create({
+    data: {
+      name: "Rahul",
+      email: "rahul@test.com",
+      age: 36,
+      userPreference: {
+        create: {
+          emailUpdate: true,
+        },
+      },
+    },
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+We get the awnser to the creating but nothing about the userPreference.
+</p>
+
+<p>
+To do so, we must use "include".
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  await prisma.user.deleteMany();
+  await prisma.userPreference.deleteMany();
+
+  const user = await prisma.user.create({
+    data: {
+      name: "Rahul",
+      email: "rahul@test.com",
+      age: 36,
+      userPreferences: {
+        create: {
+          emailUpdate: true,
+        },
+      },
+    },
+    include: {
+      userPreferences: true,
+    },
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+
+
+<p>
+Instead of include we may want to use select.
+</p>
+
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  await prisma.userPreference.deleteMany();
+  await prisma.user.deleteMany();
+
+  const user = await prisma.user.create({
+    data: {
+      name: "Rahul",
+      email: "rahul@test.com",
+      age: 36,
+      userPreferences: {
+        create: {
+          emailUpdate: true,
+        },
+      },
+    },
+    select: {
+      name: true,
+    },
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+
+
+<p>
+Explore adding userPrefernces to the select and to use select on the
+userPreferences to return only the id.
+</p>
+
+<p>
+Important, only select OR include, not both.
+</p>
+
+<p>
+PS:
+</p>
+
+<p>
+If you want to log all of your queries, change the prisma creation to this:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">const prisma = new PrismaClient({ log: ["query"] });
+
+</pre>
+</div>
+
+<p>
+Also explore `createMany`
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">prisma.user.createMany([{data...}, {}, {}])
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orged36e55" class="outline-3">
+<h3 id="orged36e55"><span class="section-number-3">5.3.</span> Finding (reading data)</h3>
+<div class="outline-text-3" id="text-5-3">
+<p>
+Let's first create several entries&#x2026;
+</p>
+
+<p>
+After that, let's take a look at the db.
+</p>
+
+<p>
+And also take a look at
+</p>
+<div class="org-src-container">
+<pre class="src src-bash">npx prisma studio
+</pre>
+</div>
+
+
+<p>
+Let's take a look on findUnique.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: "rahul@test.com",
+    },
+  });
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+We can also add include / select.
+</p>
+
+<p>
+Example:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  // await prisma.userPreference.deleteMany();
+  // await prisma.user.deleteMany();
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: "rahul@test.com",
+    },
+    select: {
+      name: true,
+      email: true,
+    },
+  });
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+We can also explore now the "age<sub>name</sub>"  property created by our @@unique.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findUnique({
+    where: {
+      age_name: {
+        age: 36,
+        name: "Rahul",
+      },
+    },
+  });
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+If we try to find this were by "name" there's no uniqueness so it is not
+possible.
+</p>
+
+<p>
+In this case, we need to search the other find methods, such as.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findFirst({
+    where: {
+      name: "Navarro",
+    },
+  });
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+We can also use findMany, like:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      age: 36,
+    },
+  });
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+For repeated data, we can use "dintinct".
+</p>
+
+<p>
+Let's create some other two users:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">await prisma.user.create({
+   data: {
+     name: "Boris",
+     age: 2,
+     email: "boris@test1.com",
+   },
+ });
+
+ await prisma.user.create({
+  data: {
+    name: "Boris",
+    age: 3,
+    email: "boris@test2.com",
+  },
+});
+
+ await prisma.user.create({
+  data: {
+    name: "Boris",
+    age: 4,
+    email: "boris@test3.com",
+  },
+});  
+
+</pre>
+</div>
+
+<p>
+Now this should return two users:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      name: "Boris",
+    },
+  });
+
+  console.log(user);
+}  
+
+</pre>
+</div>
+
+<p>
+We can apply a distinctiness by name, such as.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      name: "Boris",
+    },
+    distinct: ["name"],
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+Explore adding "age" to the distinct.
+</p>
+
+<p>
+More important than distinct is pagination.
+</p>
+
+<p>
+We can do it with take.
+</p>
+
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      name: "Boris",
+    },
+    take: 2,
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+
+
+<p>
+We can also combine with skip.
+</p>
+
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      name: "Boris",
+    },
+    take: 2,
+    skip: 1,
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+We can also order our results:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      name: "Boris",
+    },
+    orderBy: {
+      age: "asc",
+    },
+  take: 2,
+  skip: 1,
+  });
+
+  console.log(user);
+}  
+</pre>
+</div>
+
+<p>
+Now, fun with "WHERE" :)
+</p>
+
+
+<p>
+Those are equivalent:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      name: "Boris",
+    },
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+and
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      name: { equals: "Boris" },
+    },
+  });
+
+  console.log(user.length);
+}
+</pre>
+</div>
+
+<p>
+Explore changing equals to "not" and
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      name: { in: ["Boris", "Rahul"] },
+    },
+  });
+
+  console.log(user.length);
+}
+</pre>
+</div>
+
+<p>
+Explore changing in for "notIn".
+</p>
+
+
+<p>
+We can also provide queries on numbers:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      name: "Navarro",
+      age: {
+        lt: 40,
+      },
+    },
+  });
+
+  console.log(user.length);
+}
+</pre>
+</div>
+
+<p>
+Explore gt, lte, gte, &#x2026;
+</p>
+
+<p>
+There's also "contains".
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      email: {
+        contains: "@test.com",
+      },
+    },
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+Explore instead of contains: "startsWith", "endsWith".
+</p>
+
+<p>
+We can also add boolean logic with:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      AND: [{ email: { startsWith: "boris" } }, { name: "Boris" }],
+    },
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+This is equivalent to doing on the same level, the only reason one would
+do it this way is comparing the same field multiple times, like in:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      AND: [
+        { email: { startsWith: "boris" } },
+        { email: { endsWith: "@test1.com" } },
+      ],
+    },
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+We can also use OR:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      OR: [{ email: { startsWith: "boris" } }, { age: { lte: 3 } }],
+    },
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+And for last, there's NOT.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      NOT: [{ email: { startsWith: "boris" } }],
+    },
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+What about quering relationships?
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      userPreferences: {
+        emailUpdate: true,
+      },
+    },
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+What about quering user posts?
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      writtenPosts: {
+        every: {
+          title: "test",
+        },
+      },
+    },
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+funny thing, there's no posts.
+</p>
+
+<p>
+Let's add some posts:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">await prisma.post.create({
+  data: {
+    averageRating: 5,
+    title: "This is my post",
+    authorId: "61127f06-889e-42d7-9bea-e2d525fc0f46",
+  },
+});
+</pre>
+</div>
+
+<p>
+Also change where to some and none.
+</p>
+
+<p>
+Nesting can be done on infinity levels, like:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      writtenPosts: {
+        every: {
+          title: { startsWith: "Test" },
+        },
+      },
+    },
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+Another type of query on relationship filter&#x2026;
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const post = await prisma.post.findMany({
+    where: {
+      author: {
+        is: {
+          age: 36,
+        },
+      },
+    },
+  });
+
+  console.log(post);
+}
+</pre>
+</div>
+
+<p>
+See that now we have is and is not.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const post = await prisma.post.findMany({
+    where: {
+      author: {
+        is: {
+          age: 36,
+        },
+        isNot: {
+          name: "Rahul",
+        },
+      },
+    },
+  });
+
+  console.log(post);
+}
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfe9a768" class="outline-3">
+<h3 id="orgfe9a768"><span class="section-number-3">5.4.</span> Updating</h3>
+<div class="outline-text-3" id="text-5-4">
+<p>
+We have update and updateMany.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.update({
+    where: {
+      email: "rahul@test.com",
+    },
+    data: {
+      email: "rahul@test1.com",
+    },
+  });
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+We can also use include and select with it like any other.
+</p>
+
+<p>
+UpdateMany will update all matching.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.updateMany({
+    where: {
+      name: "Boris",
+    },
+    data: {
+      name: "Borinho",
+    },
+  });
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+Important, updateMany (and createMany), there's NO SELECT NOR INCLUDE!
+</p>
+
+<p>
+Let's try update our age:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.update({
+    where: {
+      name: "Rahul",
+    },
+    data: {
+      age: {
+        increment: 1,
+      },
+    },
+  });
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+We get an error as name is not a unique attribute.
+</p>
+
+<p>
+Let's change to e-mail.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.update({
+    where: {
+      email: "rahul@test1.com",
+    },
+    data: {
+      age: {
+        increment: 1,
+      },
+    },
+  });
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+We can also use decrement, multiply and divide.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org07659dc" class="outline-3">
+<h3 id="org07659dc"><span class="section-number-3">5.5.</span> Add and Connect Existent Relationships</h3>
+<div class="outline-text-3" id="text-5-5">
+<p>
+On the update we can create new fields, or we can connect/disconnect, such as:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.update({
+    where: {
+      email: "navarro@test.com",
+    },
+    data: {
+      writtenPosts: {
+        connect: {
+          id: "b2e5b41e-5acc-44c3-9890-4676069041b0",
+        },
+      },
+    },
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+If it is a one to one relationship, disconnect only needs to be true.
+</p>
+
+<p>
+This is not only for updates, but also for create.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org5861d27" class="outline-3">
+<h3 id="org5861d27"><span class="section-number-3">5.6.</span> Deleting</h3>
+<div class="outline-text-3" id="text-5-6">
+<p>
+Works very similar to finding.
+</p>
+
+<p>
+Example:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.delete({
+    where: {
+      name: "Borinho",      
+    }
+  });
+
+  console.log(user);
+}  
+</pre>
+</div>
+
+<p>
+This will not work since delete needs a unique field.
+</p>
+
+<p>
+Changing to email:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.delete({
+    where: {
+      email: "esquilos@test.com",
+    },
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+
+<p>
+If we have an error of costrains, it might be usefull adding the
+onDelete property to the relationship, such as:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-prisma">model UserPreference {
+  id          String  @id @default(uuid())
+  emailUpdate Boolean
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String  @unique
+}
+</pre>
+</div>
+
+
+<p>
+If we wan't to delete many entries.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-typescript">async function main() {
+  const user = await prisma.user.deleteMany({
+    where: {
+      age: { equals: 3 },
+    },
+  });
+
+  console.log(user);
+}
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+
+
+<div id="outline-container-org702ccdd" class="outline-2">
+<h2 id="org702ccdd"><span class="section-number-2">6.</span> Future topics</h2>
+<div class="outline-text-2" id="text-6">
+</div>
+<div id="outline-container-orge30abf8" class="outline-3">
+<h3 id="orge30abf8"><span class="section-number-3">6.1.</span> Views</h3>
+</div>
+<div id="outline-container-org9ef6e5e" class="outline-3">
+<h3 id="org9ef6e5e"><span class="section-number-3">6.2.</span> Importing database to prisma</h3>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Rahul M. Juliato</p>
+<p class="date">Created: 2023-01-23 Seg 13:50</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

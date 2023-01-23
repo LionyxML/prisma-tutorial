@@ -1,8 +1,7 @@
 #+TITLE: Prisma ORM Training
 #+AUTHOR: Rahul M. Juliato
 #+EMAIL: rahul.juliato@gmail.com
-#+OPTIONS: toc: nil
-
+#+SETUPFILE: https://fniessen.github.io/org-html-themes/org/theme-readtheorg.setup
 
 * Intro
 
@@ -663,7 +662,7 @@ regenerate the client with:
 npx prisma generate
 #+END_SRC
 
-** Create
+** Creating
 We will start with:
 
 #+BEGIN_SRC typescript
@@ -1334,4 +1333,95 @@ async function main() {
 
 We can also use decrement, multiply and divide.
 
+** Add and Connect Existent Relationships
 
+On the update we can create new fields, or we can connect/disconnect, such as:
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.update({
+    where: {
+      email: "navarro@test.com",
+    },
+    data: {
+      writtenPosts: {
+        connect: {
+          id: "b2e5b41e-5acc-44c3-9890-4676069041b0",
+        },
+      },
+    },
+  });
+
+  console.log(user);
+}
+#+END_SRC
+
+If it is a one to one relationship, disconnect only needs to be true.
+
+This is not only for updates, but also for create.
+
+** Deleting
+Works very similar to finding.
+
+Example:
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.delete({
+    where: {
+      name: "Borinho",      
+    }
+  });
+
+  console.log(user);
+}  
+#+END_SRC
+
+This will not work since delete needs a unique field.
+
+Changing to email:
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.delete({
+    where: {
+      email: "esquilos@test.com",
+    },
+  });
+
+  console.log(user);
+}
+#+END_SRC
+
+If we have an error of costrains, it might be usefull adding the
+onDelete property to the relationship, such as:
+
+#+BEGIN_SRC prisma
+model UserPreference {
+  id          String  @id @default(uuid())
+  emailUpdate Boolean
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String  @unique
+}
+#+END_SRC
+
+
+If we wan't to delete many entries.
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.deleteMany({
+    where: {
+      age: { equals: 3 },
+    },
+  });
+
+  console.log(user);
+}
+#+END_SRC
+
+
+
+* Future topics
+** Views
+** Importing database to prisma
