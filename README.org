@@ -620,7 +620,7 @@ and set it to our user adding the line:
 
 #+BEGIN_SRC prisma
   role           Role            @default(BASIC)
-#+END
+#+END_SRC
 
 See why in our example we can't use enums (connector sqlite doesn't
 support it).
