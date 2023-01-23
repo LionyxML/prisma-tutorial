@@ -208,9 +208,9 @@ Also change user to users and do:
   console.log(users);
 #+END_SRC
 
-Esse é o preview do que faz o `.prisma`.
+This is the basic preview of what the `.prisma` file does.
 
-Repassar o arquivo.
+Check the file on every item.
 
 Generator => dabase => model => migrations => client
 
