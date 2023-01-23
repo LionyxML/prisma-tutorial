@@ -650,3 +650,612 @@ Explore and ask the questions.
 
 Explore the migration files and their dialects.
 * Exploring the client
+** Intro
+We will talk about creating, reading, updating and deleting.
+
+The prisma client must be a single instance. Otherwise the db might be
+overwelmed with too many connections.
+
+If auto-complete does not completes, we might need close/reopen file or
+regenerate the client with:
+
+#+BEGIN_SRC bash
+npx prisma generate
+#+END_SRC
+
+** Create
+We will start with:
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.create({
+    data: {
+      name: "Rahul",
+      email: "rahul@test.com",
+      age: 36,
+    },
+  });
+
+  console.log(user);
+}
+#+END_SRC
+
+Saving again, we run it, we get the error expected.
+
+Adding this to the beginning:
+
+#+BEGIN_SRC typescript
+  await prisma.user.deleteMany();
+#+END_SRC
+
+Using ctrl+space (auto-completition) we can also see that is possible
+to specify data for favoritedPosts and userPreferences.
+
+This is interisting because those are models that are not inside the
+User, but they're referenced.
+
+With prisma we can do all the nested create function in one go:
+
+#+BEGIN_SRC typescript
+async function main() {
+  await prisma.user.deleteMany();
+
+  const user = await prisma.user.create({
+    data: {
+      name: "Rahul",
+      email: "rahul@test.com",
+      age: 36,
+      userPreference: {
+        create: {
+          emailUpdate: true,
+        },
+      },
+    },
+  });
+
+  console.log(user);
+}
+#+END_SRC
+
+We get the awnser to the creating but nothing about the userPreference.
+
+To do so, we must use "include".
+
+#+BEGIN_SRC typescript
+async function main() {
+  await prisma.user.deleteMany();
+  await prisma.userPreference.deleteMany();
+
+  const user = await prisma.user.create({
+    data: {
+      name: "Rahul",
+      email: "rahul@test.com",
+      age: 36,
+      userPreferences: {
+        create: {
+          emailUpdate: true,
+        },
+      },
+    },
+    include: {
+      userPreferences: true,
+    },
+  });
+
+  console.log(user);
+}
+#+END_SRC
+
+
+Instead of include we may want to use select.
+
+
+#+BEGIN_SRC typescript
+async function main() {
+  await prisma.userPreference.deleteMany();
+  await prisma.user.deleteMany();
+
+  const user = await prisma.user.create({
+    data: {
+      name: "Rahul",
+      email: "rahul@test.com",
+      age: 36,
+      userPreferences: {
+        create: {
+          emailUpdate: true,
+        },
+      },
+    },
+    select: {
+      name: true,
+    },
+  });
+
+  console.log(user);
+}
+#+END_SRC
+
+
+Explore adding userPrefernces to the select and to use select on the
+userPreferences to return only the id.
+
+Important, only select OR include, not both.
+
+PS:
+
+If you want to log all of your queries, change the prisma creation to this:
+
+#+BEGIN_SRC typescript
+const prisma = new PrismaClient({ log: ["query"] });
+
+#+END_SRC
+
+Also explore `createMany`
+
+#+BEGIN_SRC typescript
+ prisma.user.createMany([{data...}, {}, {}])
+#+END_SRC
+
+** Finding (reading data)
+Let's first create several entries...
+
+After that, let's take a look at the db.
+
+And also take a look at
+#+BEGIN_SRC bash
+  npx prisma studio
+#+END_SRC
+
+
+Let's take a look on findUnique.
+
+#+BEGIN_SRC typescript
+async function main() {
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: "rahul@test.com",
+    },
+  });
+  console.log(user);
+}
+#+END_SRC
+
+We can also add include / select.
+
+Example:
+
+#+BEGIN_SRC typescript
+async function main() {
+  // await prisma.userPreference.deleteMany();
+  // await prisma.user.deleteMany();
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: "rahul@test.com",
+    },
+    select: {
+      name: true,
+      email: true,
+    },
+  });
+  console.log(user);
+}
+#+END_SRC
+
+We can also explore now the "age_name"  property created by our @@unique.
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.findUnique({
+    where: {
+      age_name: {
+        age: 36,
+        name: "Rahul",
+      },
+    },
+  });
+  console.log(user);
+}
+#+END_SRC
+
+If we try to find this were by "name" there's no uniqueness so it is not
+possible.
+
+In this case, we need to search the other find methods, such as.
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.findFirst({
+    where: {
+      name: "Navarro",
+    },
+  });
+  console.log(user);
+}
+#+END_SRC
+
+We can also use findMany, like:
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      age: 36,
+    },
+  });
+  console.log(user);
+}
+#+END_SRC
+
+For repeated data, we can use "dintinct".
+
+Let's create some other two users:
+
+#+BEGIN_SRC typescript
+  await prisma.user.create({
+     data: {
+       name: "Boris",
+       age: 2,
+       email: "boris@test1.com",
+     },
+   });
+
+   await prisma.user.create({
+    data: {
+      name: "Boris",
+      age: 3,
+      email: "boris@test2.com",
+    },
+  });
+
+   await prisma.user.create({
+    data: {
+      name: "Boris",
+      age: 4,
+      email: "boris@test3.com",
+    },
+  });  
+
+#+END_SRC
+
+Now this should return two users:
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      name: "Boris",
+    },
+  });
+
+  console.log(user);
+}  
+
+#+END_SRC
+
+We can apply a distinctiness by name, such as.
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      name: "Boris",
+    },
+    distinct: ["name"],
+  });
+
+  console.log(user);
+}
+#+END_SRC
+
+Explore adding "age" to the distinct.
+
+More important than distinct is pagination.
+
+We can do it with take.
+
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      name: "Boris",
+    },
+    take: 2,
+  });
+
+  console.log(user);
+}
+#+END_SRC
+
+
+We can also combine with skip.
+
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      name: "Boris",
+    },
+    take: 2,
+    skip: 1,
+  });
+
+  console.log(user);
+}
+#+END_SRC
+
+We can also order our results:
+
+#+BEGIN_SRC typescript
+  async function main() {
+    const user = await prisma.user.findMany({
+      where: {
+        name: "Boris",
+      },
+      orderBy: {
+        age: "asc",
+      },
+    take: 2,
+    skip: 1,
+    });
+
+    console.log(user);
+  }  
+#+END_SRC
+
+Now, fun with "WHERE" :)
+
+
+Those are equivalent:
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      name: "Boris",
+    },
+  });
+
+  console.log(user);
+}
+#+END_SRC
+
+and
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      name: { equals: "Boris" },
+    },
+  });
+
+  console.log(user.length);
+}
+#+END_SRC
+
+Explore changing equals to "not" and
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      name: { in: ["Boris", "Rahul"] },
+    },
+  });
+
+  console.log(user.length);
+}
+#+END_SRC
+
+Explore changing in for "notIn".
+
+
+We can also provide queries on numbers:
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      name: "Navarro",
+      age: {
+        lt: 40,
+      },
+    },
+  });
+
+  console.log(user.length);
+}
+#+END_SRC
+
+Explore gt, lte, gte, ...
+
+There's also "contains".
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      email: {
+        contains: "@test.com",
+      },
+    },
+  });
+
+  console.log(user);
+}
+#+END_SRC
+
+Explore instead of contains: "startsWith", "endsWith".
+
+We can also add boolean logic with:
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      AND: [{ email: { startsWith: "boris" } }, { name: "Boris" }],
+    },
+  });
+
+  console.log(user);
+}
+#+END_SRC
+
+This is equivalent to doing on the same level, the only reason one would
+do it this way is comparing the same field multiple times, like in:
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      AND: [
+        { email: { startsWith: "boris" } },
+        { email: { endsWith: "@test1.com" } },
+      ],
+    },
+  });
+
+  console.log(user);
+}
+#+END_SRC
+
+We can also use OR:
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      OR: [{ email: { startsWith: "boris" } }, { age: { lte: 3 } }],
+    },
+  });
+
+  console.log(user);
+}
+#+END_SRC
+
+And for last, there's NOT.
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      NOT: [{ email: { startsWith: "boris" } }],
+    },
+  });
+
+  console.log(user);
+}
+#+END_SRC
+
+What about quering relationships?
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      userPreferences: {
+        emailUpdate: true,
+      },
+    },
+  });
+
+  console.log(user);
+}
+#+END_SRC
+
+What about quering user posts?
+
+#+BEGIN_SRC typescript
+async function main() {
+  const user = await prisma.user.findMany({
+    where: {
+      writtenPosts: {
+        every: {
+          title: "test",
+        },
+      },
+    },
+  });
+
+  console.log(user);
+}
+#+END_SRC
+
+funny thing, there's no posts.
+
+Let's add some posts:
+
+#+BEGIN_SRC typescript
+  await prisma.post.create({
+    data: {
+      averageRating: 5,
+      title: "This is my post",
+      authorId: "61127f06-889e-42d7-9bea-e2d525fc0f46",
+    },
+  });
+#+END_SRC
+
+Also change where to some and none.
+
+Nesting can be done on infinity levels, like:
+
+#+BEGIN_SRC typescript
+  async function main() {
+    const user = await prisma.user.findMany({
+      where: {
+        writtenPosts: {
+          every: {
+            title: { startsWith: "Test" },
+          },
+        },
+      },
+    });
+
+    console.log(user);
+  }
+#+END_SRC
+
+Another type of query on relationship filter...
+
+#+BEGIN_SRC typescript
+async function main() {
+  const post = await prisma.post.findMany({
+    where: {
+      author: {
+        is: {
+          age: 36,
+        },
+      },
+    },
+  });
+
+  console.log(post);
+}
+#+END_SRC
+
+See that now we have is and is not.
+
+#+BEGIN_SRC typescript
+async function main() {
+  const post = await prisma.post.findMany({
+    where: {
+      author: {
+        is: {
+          age: 36,
+        },
+        isNot: {
+          name: "Rahul",
+        },
+      },
+    },
+  });
+
+  console.log(post);
+}
+#+END_SRC
+** Updating
+...
