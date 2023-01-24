@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-01-23 Seg 17:15 -->
+<!-- 2023-01-24 Ter 17:21 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Prisma ORM Training</title>
@@ -23,46 +23,47 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgf5d4be7">1. Intro</a></li>
-<li><a href="#orgfe462d7">2. Setup</a></li>
-<li><a href="#org633dc86">3. The basic schema.prisma file and flow</a></li>
-<li><a href="#org3383068">4. Modeling on schema.prisma (99% of what you'll need)</a>
+<li><a href="#orga832ed6">1. Intro</a></li>
+<li><a href="#org88c2402">2. Setup</a></li>
+<li><a href="#org911db61">3. The basic schema.prisma file and flow</a></li>
+<li><a href="#orgcb3a83a">4. Modeling on schema.prisma (99% of what you'll need)</a>
 <ul>
-<li><a href="#org6126c2f">4.1. Basic</a></li>
-<li><a href="#org9f1b2b2">4.2. One to Many</a></li>
-<li><a href="#org49d7bb5">4.3. Multiple One to Many</a></li>
-<li><a href="#org6563c51">4.4. Many to Many</a></li>
-<li><a href="#orgd0daf76">4.5. One to One</a></li>
-<li><a href="#org639ce37">4.6. A little bit refactoring</a></li>
-<li><a href="#orgca9f0e4">4.7. Block Level Attributes</a></li>
-<li><a href="#org5128112">4.8. Enum</a></li>
-<li><a href="#orge2730fd">4.9. Migrating</a></li>
+<li><a href="#org705478a">4.1. Basic</a></li>
+<li><a href="#orgddaf2b1">4.2. One to Many</a></li>
+<li><a href="#orgc11f3af">4.3. Multiple One to Many</a></li>
+<li><a href="#orgf459c04">4.4. Many to Many</a></li>
+<li><a href="#org338ec8d">4.5. One to One</a></li>
+<li><a href="#orgf417e29">4.6. A little bit refactoring</a></li>
+<li><a href="#org8e2b68b">4.7. Block Level Attributes</a></li>
+<li><a href="#org7cd09b8">4.8. Enum</a></li>
+<li><a href="#orgd50674e">4.9. Migrating</a></li>
 </ul>
 </li>
-<li><a href="#org6e8871f">5. Exploring the client</a>
+<li><a href="#orgf3c55ee">5. Exploring the client</a>
 <ul>
-<li><a href="#org33ab1d9">5.1. Intro</a></li>
-<li><a href="#org84910a3">5.2. Creating</a></li>
-<li><a href="#orgd01cc1e">5.3. Finding (reading data)</a></li>
-<li><a href="#org23d257d">5.4. Updating</a></li>
-<li><a href="#orge96f0b3">5.5. Add and Connect Existent Relationships</a></li>
-<li><a href="#org4b17f82">5.6. Deleting</a></li>
+<li><a href="#org5d98ba2">5.1. Intro</a></li>
+<li><a href="#orgc376814">5.2. Creating</a></li>
+<li><a href="#org9b672a1">5.3. Finding (reading data)</a></li>
+<li><a href="#org3ebc3c7">5.4. Updating</a></li>
+<li><a href="#org50df675">5.5. Add and Connect Existent Relationships</a></li>
+<li><a href="#org942bc34">5.6. Deleting</a></li>
 </ul>
 </li>
-<li><a href="#org867eb09">6. Future topics</a>
+<li><a href="#org53744c6">6. Future topics</a>
 <ul>
-<li><a href="#org94468b6">6.1. Views</a></li>
-<li><a href="#org0723340">6.2. Importing database to prisma</a></li>
-<li><a href="#orgf8388bb">6.3. GraphQL client</a></li>
-<li><a href="#org75db9be">6.4. REPL</a></li>
+<li><a href="#orgd0d6e50">6.1. Views</a></li>
+<li><a href="#orgd3a610d">6.2. Importing database to prisma</a></li>
+<li><a href="#org48c1185">6.3. GraphQL client</a></li>
+<li><a href="#org85dc1ca">6.4. REPL</a></li>
+<li><a href="#org7164949">6.5. DB Push</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgf5d4be7" class="outline-2">
-<h2 id="orgf5d4be7"><span class="section-number-2">1.</span> Intro</h2>
+<div id="outline-container-orga832ed6" class="outline-2">
+<h2 id="orga832ed6"><span class="section-number-2">1.</span> Intro</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 Links:
@@ -92,8 +93,8 @@ Prisma Studio: GUI to view and edit data in your database
 </div>
 </div>
 
-<div id="outline-container-orgfe462d7" class="outline-2">
-<h2 id="orgfe462d7"><span class="section-number-2">2.</span> Setup</h2>
+<div id="outline-container-org88c2402" class="outline-2">
+<h2 id="org88c2402"><span class="section-number-2">2.</span> Setup</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 Start a new project
@@ -205,8 +206,8 @@ And if you do not like it when saving, you can programatically do it with:
 </div>
 </div>
 
-<div id="outline-container-org633dc86" class="outline-2">
-<h2 id="org633dc86"><span class="section-number-2">3.</span> The basic schema.prisma file and flow</h2>
+<div id="outline-container-org911db61" class="outline-2">
+<h2 id="org911db61"><span class="section-number-2">3.</span> The basic schema.prisma file and flow</h2>
 <div class="outline-text-2" id="text-3">
 <p>
 This is a Prisma specific format.
@@ -417,12 +418,12 @@ Generators we can have lots of types and be many.
 </div>
 </div>
 
-<div id="outline-container-org3383068" class="outline-2">
-<h2 id="org3383068"><span class="section-number-2">4.</span> Modeling on schema.prisma (99% of what you'll need)</h2>
+<div id="outline-container-orgcb3a83a" class="outline-2">
+<h2 id="orgcb3a83a"><span class="section-number-2">4.</span> Modeling on schema.prisma (99% of what you'll need)</h2>
 <div class="outline-text-2" id="text-4">
 </div>
-<div id="outline-container-org6126c2f" class="outline-3">
-<h3 id="org6126c2f"><span class="section-number-3">4.1.</span> Basic</h3>
+<div id="outline-container-org705478a" class="outline-3">
+<h3 id="org705478a"><span class="section-number-3">4.1.</span> Basic</h3>
 <div class="outline-text-3" id="text-4-1">
 <p>
 Back to our `schema.prisma`.
@@ -513,8 +514,8 @@ We're gonna cover all.
 </div>
 </div>
 
-<div id="outline-container-org9f1b2b2" class="outline-3">
-<h3 id="org9f1b2b2"><span class="section-number-3">4.2.</span> One to Many</h3>
+<div id="outline-container-orgddaf2b1" class="outline-3">
+<h3 id="orgddaf2b1"><span class="section-number-3">4.2.</span> One to Many</h3>
 <div class="outline-text-3" id="text-4-2">
 <p>
 A user can have many posts.
@@ -596,8 +597,8 @@ model Post {
 </div>
 </div>
 
-<div id="outline-container-org49d7bb5" class="outline-3">
-<h3 id="org49d7bb5"><span class="section-number-3">4.3.</span> Multiple One to Many</h3>
+<div id="outline-container-orgc11f3af" class="outline-3">
+<h3 id="orgc11f3af"><span class="section-number-3">4.3.</span> Multiple One to Many</h3>
 <div class="outline-text-3" id="text-4-3">
 <p>
 Change User and Post models to:
@@ -675,8 +676,8 @@ what about&#x2026;
 </div>
 </div>
 
-<div id="outline-container-org6563c51" class="outline-3">
-<h3 id="org6563c51"><span class="section-number-3">4.4.</span> Many to Many</h3>
+<div id="outline-container-orgf459c04" class="outline-3">
+<h3 id="orgf459c04"><span class="section-number-3">4.4.</span> Many to Many</h3>
 <div class="outline-text-3" id="text-4-4">
 <p>
 Create the Category model and add the many to many relation to both
@@ -721,8 +722,8 @@ that at all.
 </div>
 </div>
 
-<div id="outline-container-orgd0daf76" class="outline-3">
-<h3 id="orgd0daf76"><span class="section-number-3">4.5.</span> One to One</h3>
+<div id="outline-container-org338ec8d" class="outline-3">
+<h3 id="org338ec8d"><span class="section-number-3">4.5.</span> One to One</h3>
 <div class="outline-text-3" id="text-4-5">
 <p>
 Let's create a new model, UserPreference. Since we want one to one, we can declare
@@ -802,8 +803,8 @@ We now may have a Post model like this:
 </div>
 </div>
 
-<div id="outline-container-org639ce37" class="outline-3">
-<h3 id="org639ce37"><span class="section-number-3">4.6.</span> A little bit refactoring</h3>
+<div id="outline-container-orgf417e29" class="outline-3">
+<h3 id="orgf417e29"><span class="section-number-3">4.6.</span> A little bit refactoring</h3>
 <div class="outline-text-3" id="text-4-6">
 <p>
 Add title to Post. Rating to avgRating to float.
@@ -862,8 +863,8 @@ model Category {
 </div>
 </div>
 
-<div id="outline-container-orgca9f0e4" class="outline-3">
-<h3 id="orgca9f0e4"><span class="section-number-3">4.7.</span> Block Level Attributes</h3>
+<div id="outline-container-org8e2b68b" class="outline-3">
+<h3 id="org8e2b68b"><span class="section-number-3">4.7.</span> Block Level Attributes</h3>
 <div class="outline-text-3" id="text-4-7">
 <p>
 Different of the Attributes (which are declared in rows).
@@ -936,8 +937,8 @@ an conventional id but a composition of two attr)
 </div>
 </div>
 
-<div id="outline-container-org5128112" class="outline-3">
-<h3 id="org5128112"><span class="section-number-3">4.8.</span> Enum</h3>
+<div id="outline-container-org7cd09b8" class="outline-3">
+<h3 id="org7cd09b8"><span class="section-number-3">4.8.</span> Enum</h3>
 <div class="outline-text-3" id="text-4-8">
 <p>
 We can add an enum like:
@@ -972,8 +973,8 @@ item.
 </p>
 </div>
 </div>
-<div id="outline-container-orge2730fd" class="outline-3">
-<h3 id="orge2730fd"><span class="section-number-3">4.9.</span> Migrating</h3>
+<div id="outline-container-orgd50674e" class="outline-3">
+<h3 id="orgd50674e"><span class="section-number-3">4.9.</span> Migrating</h3>
 <div class="outline-text-3" id="text-4-9">
 <p>
 With the current schema.prisma (as in the end of "Block Level
@@ -1015,12 +1016,12 @@ Explore the migration files and their dialects.
 </div>
 </div>
 </div>
-<div id="outline-container-org6e8871f" class="outline-2">
-<h2 id="org6e8871f"><span class="section-number-2">5.</span> Exploring the client</h2>
+<div id="outline-container-orgf3c55ee" class="outline-2">
+<h2 id="orgf3c55ee"><span class="section-number-2">5.</span> Exploring the client</h2>
 <div class="outline-text-2" id="text-5">
 </div>
-<div id="outline-container-org33ab1d9" class="outline-3">
-<h3 id="org33ab1d9"><span class="section-number-3">5.1.</span> Intro</h3>
+<div id="outline-container-org5d98ba2" class="outline-3">
+<h3 id="org5d98ba2"><span class="section-number-3">5.1.</span> Intro</h3>
 <div class="outline-text-3" id="text-5-1">
 <p>
 We will talk about creating, reading, updating and deleting.
@@ -1043,8 +1044,8 @@ regenerate the client with:
 </div>
 </div>
 
-<div id="outline-container-org84910a3" class="outline-3">
-<h3 id="org84910a3"><span class="section-number-3">5.2.</span> Creating</h3>
+<div id="outline-container-orgc376814" class="outline-3">
+<h3 id="orgc376814"><span class="section-number-3">5.2.</span> Creating</h3>
 <div class="outline-text-3" id="text-5-2">
 <p>
 We will start with:
@@ -1215,8 +1216,8 @@ Also explore `createMany`
 </div>
 </div>
 
-<div id="outline-container-orgd01cc1e" class="outline-3">
-<h3 id="orgd01cc1e"><span class="section-number-3">5.3.</span> Finding (reading data)</h3>
+<div id="outline-container-org9b672a1" class="outline-3">
+<h3 id="org9b672a1"><span class="section-number-3">5.3.</span> Finding (reading data)</h3>
 <div class="outline-text-3" id="text-5-3">
 <p>
 Let's first create several entries&#x2026;
@@ -1787,8 +1788,8 @@ See that now we have is and is not.
 </div>
 </div>
 </div>
-<div id="outline-container-org23d257d" class="outline-3">
-<h3 id="org23d257d"><span class="section-number-3">5.4.</span> Updating</h3>
+<div id="outline-container-org3ebc3c7" class="outline-3">
+<h3 id="org3ebc3c7"><span class="section-number-3">5.4.</span> Updating</h3>
 <div class="outline-text-3" id="text-5-4">
 <p>
 We have update and updateMany.
@@ -1888,8 +1889,8 @@ We can also use decrement, multiply and divide.
 </div>
 </div>
 
-<div id="outline-container-orge96f0b3" class="outline-3">
-<h3 id="orge96f0b3"><span class="section-number-3">5.5.</span> Add and Connect Existent Relationships</h3>
+<div id="outline-container-org50df675" class="outline-3">
+<h3 id="org50df675"><span class="section-number-3">5.5.</span> Add and Connect Existent Relationships</h3>
 <div class="outline-text-3" id="text-5-5">
 <p>
 On the update we can create new fields, or we can connect/disconnect, such as:
@@ -1925,8 +1926,8 @@ This is not only for updates, but also for create.
 </div>
 </div>
 
-<div id="outline-container-org4b17f82" class="outline-3">
-<h3 id="org4b17f82"><span class="section-number-3">5.6.</span> Deleting</h3>
+<div id="outline-container-org942bc34" class="outline-3">
+<h3 id="org942bc34"><span class="section-number-3">5.6.</span> Deleting</h3>
 <div class="outline-text-3" id="text-5-6">
 <p>
 Works very similar to finding.
@@ -2006,27 +2007,30 @@ If we wan't to delete many entries.
 </div>
 </div>
 
-<div id="outline-container-org867eb09" class="outline-2">
-<h2 id="org867eb09"><span class="section-number-2">6.</span> Future topics</h2>
+<div id="outline-container-org53744c6" class="outline-2">
+<h2 id="org53744c6"><span class="section-number-2">6.</span> Future topics</h2>
 <div class="outline-text-2" id="text-6">
 </div>
-<div id="outline-container-org94468b6" class="outline-3">
-<h3 id="org94468b6"><span class="section-number-3">6.1.</span> Views</h3>
+<div id="outline-container-orgd0d6e50" class="outline-3">
+<h3 id="orgd0d6e50"><span class="section-number-3">6.1.</span> Views</h3>
 </div>
-<div id="outline-container-org0723340" class="outline-3">
-<h3 id="org0723340"><span class="section-number-3">6.2.</span> Importing database to prisma</h3>
+<div id="outline-container-orgd3a610d" class="outline-3">
+<h3 id="orgd3a610d"><span class="section-number-3">6.2.</span> Importing database to prisma</h3>
 </div>
-<div id="outline-container-orgf8388bb" class="outline-3">
-<h3 id="orgf8388bb"><span class="section-number-3">6.3.</span> GraphQL client</h3>
+<div id="outline-container-org48c1185" class="outline-3">
+<h3 id="org48c1185"><span class="section-number-3">6.3.</span> GraphQL client</h3>
 </div>
-<div id="outline-container-org75db9be" class="outline-3">
-<h3 id="org75db9be"><span class="section-number-3">6.4.</span> REPL</h3>
+<div id="outline-container-org85dc1ca" class="outline-3">
+<h3 id="org85dc1ca"><span class="section-number-3">6.4.</span> REPL</h3>
+</div>
+<div id="outline-container-org7164949" class="outline-3">
+<h3 id="org7164949"><span class="section-number-3">6.5.</span> DB Push</h3>
 </div>
 </div>
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Rahul M. Juliato</p>
-<p class="date">Created: 2023-01-23 Seg 17:15</p>
+<p class="date">Created: 2023-01-24 Ter 17:21</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
